@@ -14,12 +14,26 @@ class View
   end
 
   def render_board
-    board = @game.board
+    squares = @game.board.squares
 
-    puts " #{board.pieces[0]} | #{board.pieces[1]} | #{board.pieces[2]}\n===+===+===\n #{board.pieces[3]} | #{board.pieces[4]} | #{board.pieces[5]}\n===+===+===\n #{board.pieces[6]} | #{board.pieces[7]} | #{board.pieces[8]}\n"
+    puts " #{render_square(squares, 0)} | #{render_square(squares, 1)} | #{render_square(squares, 2)}\n==+==+==\n #{render_square(squares, 3)} | #{render_square(squares, 4)} | #{render_square(squares, 5)}\n==+==+==\n #{render_square(squares, 6)} | #{render_square(squares, 7)} | #{render_square(squares, 8)}\n"
+    puts "\n\n"
   end
 
   def get_input
-    gets.chomp.to_i
+    input = gets.chomp.to_i
+
+    if input.positive? && input <= 9
+      input
+    else
+      puts 'Input Invalid. Enter a number between 1 and 9.'
+      get_input
+    end
+  end
+
+  private
+
+  def render_square(squares, index)
+    squares[index].value || index + 1
   end
 end
