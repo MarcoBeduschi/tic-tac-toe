@@ -1,5 +1,6 @@
-class Bot
+# frozen_string_literal: true
 
+class Bot
   attr_reader :marker
 
   def initialize(game, marker)
@@ -11,28 +12,17 @@ class Bot
   def make_move
     spot = nil
 
-    until spot
-      spot = get_best_move
-    end
+    spot = best_move until spot
 
     @board.pieces[spot] = @marker
+    @board.set_quare_value(spot, @marker)
   end
 
   private
 
+  def best_move
+    return 4 if @board.get_square(4).empty?
 
-  def get_best_move
-    return 4 if @board.pieces[4] == "4"
-
-    available_spaces = []
-
-    @board.pieces.each do |s|
-      if s != "X" && s != @marker
-        available_spaces << s
-      end
-    end
-
-    n = rand(0..available_spaces.count)
-    return available_spaces[n].to_i
+    @board.avaliable_squares.map { |sq| @board.squares.index(sq) }.sample
   end
 end
