@@ -8,41 +8,49 @@ require './view.rb'
 class Game
   attr_reader :board, :view, :bot
 
+  WINNING_COMBINATIONS = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+  ].freeze
+
   def initialize
     @view = View.new(self)
     @board = Board.new(self)
     @bot = Bot.new(self, 'X')
-    @human = Player.new(self, 'O')
+    @player = Player.new(self, 'O')
   end
 
   def start_game
     @view.render_game_start
     @view.render_board
 
-    until game_over? || tie
-      @human.make_move
+    until game_over? || tie?
+      [@player, @bot].each do |character|
+        character.make_move
+        @view.render_board
 
-      @bot.make_move if !game_over? && !tie
-
-      @view.render_board
+        break if game_over? || tie?
+      end
     end
     @view.render_game_over
   end
 
   def game_over?
-    b = @board
+    WINNING_COMBINATIONS.detect do |kombination|
+      combination = kombination.map { |index| @board.get_square(index) }
 
-    [b.pieces[0], b.pieces[1], b.pieces[2]].uniq.length == 1 ||
-      [b.pieces[3], b.pieces[4], b.pieces[5]].uniq.length == 1 ||
-      [b.pieces[6], b.pieces[7], b.pieces[8]].uniq.length == 1 ||
-      [b.pieces[0], b.pieces[3], b.pieces[6]].uniq.length == 1 ||
-      [b.pieces[1], b.pieces[4], b.pieces[7]].uniq.length == 1 ||
-      [b.pieces[2], b.pieces[5], b.pieces[8]].uniq.length == 1 ||
-      [b.pieces[0], b.pieces[4], b.pieces[8]].uniq.length == 1 ||
-      [b.pieces[2], b.pieces[4], b.pieces[6]].uniq.length == 1
+      return true if combination.map(&:empty?).none? &&
+                     combination.map(&:value).uniq.length == 1
+    end
   end
 
-  def tie
+  def tie?
     @board.full?
   end
 end
